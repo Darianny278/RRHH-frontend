@@ -4,6 +4,14 @@ import LoginView from "../views/LoginView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import HomeView from "../views/HomeView.vue";
 import CandidatoForm from "../components/candidato/candidatoForm.vue";
+import CandidatosList from "../components/candidato/candidatosList.vue"
+import IdiomasList from "../components/idiomas/idiomasList.vue"
+import PuestosList from "../components/puestos/puestosList.vue"
+import CapacitacionesList from "../components/capacitaciones/capacitacionesList.vue"
+import CompetenciasList from "../components/competencias/competenciasList.vue"
+import ExperienciasList from "../components/experiencia/experienciasList.vue"
+import DetalleCandidato from "../components/candidato/candidatoDetails.vue"
+import EmpleadosList from "../components/empleados/empleadoList.vue"
 
 Vue.use(VueRouter);
 
@@ -24,10 +32,58 @@ const routes = [
     component: HomeView,
     children: [
       {
+        path: "",
+        redirect: (to) => {
+          const isAdmin = getCookie("admin") === "true";
+          return isAdmin ? "/candidatos" : "/candidato";
+        },
+      },
+      {
         path: "/candidato",
         name: "candidato",
         component: CandidatoForm
-      }
+      },
+      {
+        path: "/candidatos",
+        name: "candidatos",
+        component: CandidatosList
+      },
+      {
+        path: "/idiomas",
+        name: "idiomas",
+        component: IdiomasList
+      },
+      {
+        path: "/puestos",
+        name: "puestos",
+        component: PuestosList
+      },
+      {
+        path: "/capacitaciones",
+        name: "capacitaciones",
+        component: CapacitacionesList
+      },
+      {
+        path: "/competencias",
+        name: "competencias",
+        component: CompetenciasList
+      },
+      {
+        path: "/experiencias",
+        name: "experiencias",
+        component: ExperienciasList
+      },
+      {
+        path: "/candidato/:candidatoId",
+        name: "detalle-candidato",
+        component: DetalleCandidato,
+        props: true,
+      },
+      {
+        path: "/empleados",
+        name: "empleados",
+        component: EmpleadosList,
+      },
     ]
   },
 ];

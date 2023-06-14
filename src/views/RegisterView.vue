@@ -22,6 +22,8 @@
               label="Email"
               required
               outlined
+              :rules="emailRules"
+              :error-messages="emailErrors"
             ></v-text-field>
             <v-text-field
               v-model="password"
@@ -39,9 +41,14 @@
               required
               outlined
             ></v-text-field>
-            <v-btn type="submit" color="#0d4382" class="d-flex mx-auto" dark
-              >Registrarse</v-btn
+            <v-btn
+              type="submit"
+              color="#0d4382"
+              class="d-flex mx-auto text-white"
+              :disabled="isFormIncomplete || !isEmailValid"
             >
+              Registrarse
+            </v-btn>
           </v-form>
 
           <v-btn
@@ -50,8 +57,9 @@
             color="#0d4382"
             class="d-flex mx-auto mt-5"
             outlined
-            >Logearse</v-btn
           >
+            Ir al login
+          </v-btn>
         </v-card>
       </v-col>
     </v-row>
@@ -70,12 +78,36 @@ export default {
       email: "",
       password: "",
       confirmPassword: "",
+      emailError: false,
+      emailRules: [
+        (v) => !!v || "El email es requerido",
+        (v) =>
+          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+          "El email no es válido",
+      ],
+      emailErrors: [],
     };
+  },
+  computed: {
+    isFormIncomplete() {
+      return (
+        !this.name || !this.email || !this.password || !this.confirmPassword
+      );
+    },
+    isEmailValid() {
+      const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+      return emailRegex.test(this.email);
+    },
   },
   methods: {
     register() {
       if (this.password !== this.confirmPassword) {
-        // Passwords don't match, show error message or take appropriate action
+        this.$toasted.show("¡Las contraseñas no coinciden!", {
+          position: "bottom-right",
+          duration: 3000,
+          theme: "toasted-primary",
+          type: "error",
+        });
         return;
       }
 
@@ -86,16 +118,26 @@ export default {
           email: this.email,
           password: this.password,
         })
-        .then(
+        .then(() => {
           this.$toasted.show("¡Registro exitoso!", {
-            position: "top-right",
+            position: "bottom-right",
             duration: 3000,
             theme: "toasted-primary",
-          }),
-          this.$router.push("/")
-        )
+            type: "success",
+          });
+          this.$router.push("/");
+        })
         .catch((error) => {
-          throw error;
+          if (error.response && error.response.status === 500) {
+            this.$toasted.show("¡El correo ya esta en uso!", {
+              position: "bottom-right",
+              duration: 3000,
+              theme: "toasted-primary",
+              type: "alert",
+            });
+          } else {
+            throw error;
+          }
         });
     },
   },
